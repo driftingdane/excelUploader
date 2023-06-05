@@ -1,0 +1,80 @@
+body {
+    font-family: 'Quicksand', sans-serif;
+}
+
+p {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+}
+
+.scroll-indicator {
+    text-align: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+
+.dataTables_length {
+
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.sorting::after {
+    color: #fd9843;
+    opacity: .9 !important;
+
+
+}
+
+.sorting::before {
+    color: #fea55b;
+    opacity: .9 !important;
+
+}
+
+video {
+    /* override other styles to make responsive */
+    width: 100% !important;
+    height: auto !important;
+}
+
+.play-icon-container {
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+}
+
+.list-group-item {
+    position: relative;
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 95%;
+    width: 32px; /* Adjust the width as per your desired size */
+    height: 32px; /* Adjust the height as per your desired size */
+    background-color: #000;
+    cursor: pointer;
+    /* Add other styling as needed */
+}
+
+
+.play-icon::before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 15px solid #fff;
+    margin: 7px 10px;
+
+}
+
+.play-icon-audio {
+    display: none;
+}

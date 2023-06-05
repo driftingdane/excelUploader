@@ -1,0 +1,9 @@
+# render.yaml
+
+services:
+  - name: web
+    env:
+      - PYTHON_VERSION=3.11
+      - PIP_VERSION=latest
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py runserver 0.0.0.0:$PORT

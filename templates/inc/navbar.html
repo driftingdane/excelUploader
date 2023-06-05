@@ -1,0 +1,63 @@
+{% load static %}
+{% load socialaccount %}
+{% load account %}
+
+<nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand position-relative" href=""><img class="align-middle"
+                                                                                     src="{% static 'img/logo.svg' %}">
+            <span class="position-absolute start-50 top-0 translate-middle-x small">Verb</span>
+            <span class="position-absolute start-50 top-50 translate-middle-x pt-3 small">teacher</span>
+
+        </a>
+        <button class="navbar-toggler hamburger" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item d-none">
+                    <a class="nav-link" href="">Home</a>
+                </li>
+                <li class="nav-item dropdown d-none">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        Account
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-start"
+                        aria-labelledby="navbarDropdownMenuLink">
+                        {% if user.is_authenticated %}
+                            <li class="dropdown-item">
+                                <strong class="text-wrap">
+                                    Hi
+                                    {% if not request.user.user_name %}
+                                        {{ user.first_name|capfirst }}
+                                    {% else %}
+                                        {{ user.user_name|capfirst }}
+                                    {% endif %}
+                                </strong>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="">Manage</a></li>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li class="dropdown-item">
+                                <form class="dropdown-item" method="post" action="{% url 'account_logout' %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-outline-dark blue-black-30">Log out</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

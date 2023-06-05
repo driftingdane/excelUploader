@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% load account %}
+{% load i18n %}
+{% load static %}
+{% block title %} | Logout {% endblock title %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 mx-auto">
+                <form class="form-control" method="post" action=" {% url 'account_logout' %} ">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

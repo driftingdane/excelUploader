@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% load account %}
+{% load i18n %}
+{% load static %}
+{% block title %} | Login {% endblock title %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 mx-auto">
+                <p class="text-center">Login into your account</p>
+                <form class="form-control">
+                    <div class="d-grid gap-2 p-2">
+                        <a href="{% provider_login_url 'google' %}" class="btn orange-white-50 hover-top-shadow">
+                            <i class="fab fa-google fa-2x"></i></a>
+                    </div>
+                </form>
+                <p class="text-center lead mt-2">or</p>
+                <form class="login mb-2" method="POST" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-primary btn-block py-2 mb-4 mt-1 fw500 w-100" type="submit">
+                        Sign in
+                    </button>
+                </form>
+                <p class="text-center pt-4">
+                    <a href="{% url 'account_reset_password' %}">Forgotten password?</a>
+                </p>
+                <p class="text-center">
+                    <a href="{{ signup_url }}">Don't have an account?</a>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock content %}
