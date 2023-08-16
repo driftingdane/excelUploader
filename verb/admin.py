@@ -59,13 +59,15 @@ class VerbAdmin(admin.ModelAdmin):
                             infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
                             created, _ = Verb.objects.update_or_create(
                                 infinitive=infinitive,
-                                english_translation=english_translation,
-                                danish_translation=danish_translation,
-                                eu=eu,
-                                voce_ele_ela=voce_ele_ela,
-                                nos=nos,
-                                voces_eles_elas=voces_eles_elas,
-                                category_id=csv_cat,
+                                category_id=csv_cat,  # Check within the same category
+                                defaults={
+                                    'english_translation': english_translation,
+                                    'danish_translation': danish_translation,
+                                    'eu': eu,
+                                    'voce_ele_ela': voce_ele_ela,
+                                    'nos': nos,
+                                    'voces_eles_elas': voces_eles_elas,
+                                }
                             )
                 except Exception as e:
                     messages.error(request, f"Error processing CSV file: {e}")
@@ -80,13 +82,15 @@ class VerbAdmin(admin.ModelAdmin):
                             infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
                             created, _ = Verb.objects.update_or_create(
                                 infinitive=infinitive,
-                                english_translation=english_translation,
-                                danish_translation=danish_translation,
-                                eu=eu,
-                                voce_ele_ela=voce_ele_ela,
-                                nos=nos,
-                                voces_eles_elas=voces_eles_elas,
-                                category_id=csv_cat,
+                                category_id=csv_cat,  # Check within the same category
+                                defaults={
+                                    'english_translation': english_translation,
+                                    'danish_translation': danish_translation,
+                                    'eu': eu,
+                                    'voce_ele_ela': voce_ele_ela,
+                                    'nos': nos,
+                                    'voces_eles_elas': voces_eles_elas,
+                                }
                             )
                 except Exception as e:
                     messages.error(request, f"Error processing Excel file: {e}")
