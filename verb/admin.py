@@ -60,7 +60,7 @@ class VerbAdmin(admin.ModelAdmin):
                             voce_ele_ela=voce_ele_ela,
                             nos=nos,
                             voces_eles_elas=voces_eles_elas,
-                            lang_category_id=csv_cat,
+                            category_id=csv_cat,
                         )
 
             elif csv_file.name.endswith('.xlsx'):
