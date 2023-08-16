@@ -41,50 +41,65 @@ class VerbAdmin(admin.ModelAdmin):
 
     def upload_csv(self, request):
         if request.method == 'POST':
-            csv_file = request.FILES["csv_upload"]
-            csv_cat = request.POST["category"]
+            csv_file = request.FILES.get("csv_upload")
+            csv_cat = request.POST.get("category")  # Use get() to safely retrieve the POST parameter
+
+            if csv_file is None:
+                messages.warning(request, "No file selected")
+                return HttpResponseRedirect(request.path_info)
 
             if csv_file.name.endswith('.csv'):
-                file_data = csv_file.read().decode("utf-8")
-                csv_data = csv.reader(file_data.splitlines(), delimiter=',')
-                next(csv_data)  # Skip the header row
+                try:
+                    file_data = csv_file.read().decode("utf-8")
+                    csv_data = csv.reader(file_data.splitlines(), delimiter=',')
+                    next(csv_data)  # Skip the header row
 
-                for row in csv_data:
-                    if len(row) == 7:
-                        infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
-                        created = Verb.objects.update_or_create(
-                            infinitive=infinitive,
-                            english_translation=english_translation,
-                            danish_translation=danish_translation,
-                            eu=eu,
-                            voce_ele_ela=voce_ele_ela,
-                            nos=nos,
-                            voces_eles_elas=voces_eles_elas,
-                            lang_category_id=csv_cat,
-                        )
+                    for row in csv_data:
+                        if len(row) == 7:
+                            infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
+                            created, _ = Verb.objects.update_or_create(
+                                infinitive=infinitive,
+                                category_id=csv_cat,  # Check within the same category
+                                defaults={
+                                    'english_translation': english_translation,
+                                    'danish_translation': danish_translation,
+                                    'eu': eu,
+                                    'voce_ele_ela': voce_ele_ela,
+                                    'nos': nos,
+                                    'voces_eles_elas': voces_eles_elas,
+                                }
+                            )
+                except Exception as e:
+                    messages.error(request, f"Error processing CSV file: {e}")
 
             elif csv_file.name.endswith('.xlsx'):
-                workbook = openpyxl.load_workbook(csv_file)
-                sheet = workbook.active
+                try:
+                    workbook = openpyxl.load_workbook(csv_file)
+                    sheet = workbook.active
 
-                for row in sheet.iter_rows(min_row=2, values_only=True):
-                    if len(row) == 7:
-                        infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
-                        created = Verb.objects.update_or_create(
-                            infinitive=infinitive,
-                            english_translation=english_translation,
-                            danish_translation=danish_translation,
-                            eu=eu,
-                            voce_ele_ela=voce_ele_ela,
-                            nos=nos,
-                            voces_eles_elas=voces_eles_elas,
-                            category_id=csv_cat,
-                        )
+                    for row in sheet.iter_rows(min_row=2, values_only=True):
+                        if len(row) == 7:
+                            infinitive, english_translation, danish_translation, eu, voce_ele_ela, nos, voces_eles_elas = row
+                            created, _ = Verb.objects.update_or_create(
+                                infinitive=infinitive,
+                                category_id=csv_cat,  # Check within the same category
+                                defaults={
+                                    'english_translation': english_translation,
+                                    'danish_translation': danish_translation,
+                                    'eu': eu,
+                                    'voce_ele_ela': voce_ele_ela,
+                                    'nos': nos,
+                                    'voces_eles_elas': voces_eles_elas,
+                                }
+                            )
+                except Exception as e:
+                    messages.error(request, f"Error processing Excel file: {e}")
 
             else:
                 messages.warning(request, "Only CSV and XLSX files are allowed")
                 return HttpResponseRedirect(request.path_info)
 
+            messages.success(request, "File uploaded successfully")
             url = reverse('admin:index')
             return HttpResponseRedirect(url)
 
