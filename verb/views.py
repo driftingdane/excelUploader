@@ -3,7 +3,6 @@ import os
 import re
 
 import pandas as pd
-from django.contrib.auth.decorators import login_required
 from django.core.files import File
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
@@ -105,66 +104,6 @@ def search_sentences_helper(words, file_path):
     return sentences, related_sentences
 
 
-def create_audio_from_sentences_backup(sentences, verb_id):
-    output_dir = 'audio'  # Define the output directory relative to the media folder
-    media_dir = settings.MEDIA_ROOT  # Get the media directory from Django settings
-    output_path = os.path.join(media_dir, output_dir)  # Output directory path in the media folder
-
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    verb_ins = Verb.objects.get(id=verb_id)  # Retrieve the Verb instance outside the loop
-    print(f'Verb infinitive: {verb_ins.infinitive}')
-
-    verb_audios = []  # List to hold the VerbAudio instances
-
-    if sentences:
-        for i, sentence in enumerate(sentences):
-            # Generate a unique identifier for the sentence
-            identifier = hashlib.md5(sentence.encode('utf-8')).hexdigest()
-
-            # Generate the filename based on the sentence name and the identifier
-            filename = f'{slugify(sentence)}_{identifier}_{i + 1}.mp3'
-            audio_file = os.path.join(output_path, filename)
-
-            # Check if an audio file with the same identifier already exists
-            existing_audio = VerbAudio.objects.filter(verb=verb_ins, audio__contains=identifier).first()
-            if existing_audio:
-                verb_audios.append(existing_audio)
-                print(f'Audio for sentence "{sentence}" already exists')
-                continue
-
-            # Generate the audio file
-            tts = gTTS(text=sentence, lang='pt-br')
-            tts.save(audio_file)
-
-            # Validate the saved audio file
-            if os.path.getsize(audio_file) == 0:
-                # Error during audio generation, delete the file
-                os.remove(audio_file)
-                print(f'Error generating audio for sentence {i + 1}')
-            else:
-                print(f'Saved audio for sentence {i + 1}')
-
-            # Create the VerbAudio instance and associate it with the Verb instance
-            verb_audio = VerbAudio(verb=verb_ins)
-
-            with open(audio_file, 'rb') as file:
-                verb_audio.audio.save(filename, File(file), save=True)
-
-            verb_audio.save()  # Save the individual VerbAudio instance
-
-            verb_audios.append(verb_audio)
-
-            # Delete the temporary audio file
-            os.remove(audio_file)
-
-    else:
-        print("No sentences provided")
-
-    print(sentences)  # Print the sentences list for debugging purposes
-
-
 def create_audio_from_sentences(sentences, verb_id):
     output_dir = 'audio'  # Define the output directory relative to the media folder
     media_dir = settings.MEDIA_ROOT  # Get the media directory from Django settings
@@ -177,7 +116,9 @@ def create_audio_from_sentences(sentences, verb_id):
     print(f'Verb infinitive: {verb_ins.infinitive}')
 
     verb_audios = []  # List to hold the VerbAudio instances
-    existing_audio_files = set(VerbAudio.objects.filter(verb=verb_ins).values_list('audio', flat=True))
+    existing_audio_files = VerbAudio.objects.filter(verb=verb_ins).values_list('audio', flat=True)
+    existing_audio_prefixes = {filename.split('/')[1].split('_', 1)[0] + '_' for filename in existing_audio_files}
+    print(f'Prefix is "{existing_audio_prefixes}"')
 
     if sentences:
         for i, sentence in enumerate(sentences):
@@ -186,15 +127,16 @@ def create_audio_from_sentences(sentences, verb_id):
 
             # Generate the filename based on the sentence name and the identifier
             filename = f'{slugify(sentence)}_{identifier}_{i + 1}.mp3'
+            # verb_name_prefix = filename.split('_', 1)[1].split('_', 1)[0]
+            # verb_name_prefix = filename.split('_', 1)[0]
+            verb_name_prefix = filename.split('_', 1)[0] + '_'
 
-            if filename in existing_audio_files:
-                print(f'Audio for sentence "{sentence}" already exists')
-                # Retrieve the existing VerbAudio instance based on the filename
-                existing_verb_audio = VerbAudio.objects.get(verb=verb_ins, audio=filename)
-                verb_audios.append(existing_verb_audio)
+            print(f'Prefix is "{verb_name_prefix}"')
+
+            if verb_name_prefix in existing_audio_prefixes:
+                print(f'Audio for sentence "{sentence}" with verb "{verb_ins.infinitive}" already exists')
             else:
-                existing_audio_files.add(filename)
-
+                existing_audio_prefixes.add(verb_name_prefix)
                 audio_file = os.path.join(output_path, filename)
                 tts = gTTS(text=sentence, lang='pt-br')
                 tts.save(audio_file)
